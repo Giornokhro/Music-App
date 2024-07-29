@@ -13,40 +13,38 @@
 
 <body class="bg-gray-900 text-white">
 
-    <div class="container mx-auto mt-10 p-4">
-        <div class="flex">
-            <!-- Playlist -->
-            <div class="w-1/4 bg-gray-800 p-4 rounded-lg">
-                <h2 class="text-xl mb-4">Playlist</h2>
-                <ul id="playlist" class="space-y-2"></ul>
+    <div class="container mx-auto mt-10 p-4 flex flex-col md:flex-row h-screen">
+        <!-- Playlist -->
+        <div class="md:w-1/4 bg-gray-800 p-4 rounded-lg mb-4 md:mb-0 overflow-y-auto flex-grow-0" style="max-height: 80vh;">
+            <h2 class="text-xl mb-4">Playlist</h2>
+            <ul id="playlist" class="space-y-2"></ul>
+        </div>
+        <!-- Player -->
+        <div class="md:w-3/4 md:ml-4 bg-gray-800 p-4 rounded-lg flex flex-col items-center flex-grow">
+            <div id="cover" class="w-64 h-64 bg-gray-700 mb-4 rounded-lg"></div>
+            <p id="title" class="text-xl mb-1">Título de la canción</p>
+            <p id="artist" class="text-lg mb-1">Artista</p>
+            <p id="album" class="text-lg mb-1">Álbum</p>
+            <p id="genre" class="text-lg mb-4">Género</p>
+            <audio id="audio" class="w-full mb-4" controls></audio>
+            <div class="flex space-x-4">
+                <button id="prev" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
+                    <i class="fas fa-backward"></i>
+                </button>
+                <button id="playPause" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="stop" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button id="next" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
+                    <i class="fas fa-forward"></i>
+                </button>
+                <button id="shuffle" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
+                    <i class="fas fa-random"></i>
+                </button>
             </div>
-            <!-- Player -->
-            <div class="w-3/4 ml-4 bg-gray-800 p-4 rounded-lg flex flex-col items-center">
-                <div id="cover" class="w-64 h-64 bg-gray-700 mb-4 rounded-lg"></div>
-                <p id="title" class="text-xl mb-1">Título de la canción</p>
-                <p id="artist" class="text-lg mb-1">Artista</p>
-                <p id="album" class="text-lg mb-1">Álbum</p>
-                <p id="genre" class="text-lg mb-4">Género</p>
-                <audio id="audio" class="w-full mb-4" controls></audio>
-                <div class="flex space-x-4">
-                    <button id="prev" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                        <i class="fas fa-backward"></i>
-                    </button>
-                    <button id="playPause" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <button id="stop" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                        <i class="fas fa-stop"></i>
-                    </button>
-                    <button id="next" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                        <i class="fas fa-forward"></i>
-                    </button>
-                    <button id="shuffle" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                        <i class="fas fa-random"></i>
-                    </button>
-                </div>
-                <input type="file" id="input" accept=".mp3, .wav" class="mt-4" multiple>
-            </div>
+            <input type="file" id="input" accept=".mp3, .wav" class="mt-4" multiple>
         </div>
     </div>
 
