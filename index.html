@@ -12,16 +12,21 @@
 </head>
 
 <body class="bg-gray-900 text-white">
-
     <div class="container mx-auto mt-10 p-4 flex flex-col md:flex-row h-screen">
-        <!-- Playlist -->
         <div class="md:w-1/4 bg-gray-800 p-4 rounded-lg mb-4 md:mb-0 overflow-y-auto flex-grow-0" style="max-height: 80vh;">
             <h2 class="text-xl mb-4">Playlist</h2>
             <ul id="playlist" class="space-y-2"></ul>
         </div>
-        <!-- Player -->
         <div class="md:w-3/4 md:ml-4 bg-gray-800 p-4 rounded-lg flex flex-col items-center flex-grow">
-            <div id="cover" class="w-64 h-64 bg-gray-700 mb-4 rounded-lg"></div>
+            <div class="carousel-container relative w-full flex justify-center items-center">
+                <div class="gradient-left hidden md:block absolute left-0 top-0 bottom-0 w-1/4 bg-gradient-to-r from-gray-900 to-transparent"></div>
+                <div id="carousel" class="carousel flex transition-transform duration-500 ease-in-out">
+                    <div class="carousel-item w-64 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
+                    <div class="carousel-item w-64 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
+                    <div class="carousel-item w-64 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
+                </div>
+                <div class="gradient-right hidden md:block absolute right-0 top-0 bottom-0 w-1/4 bg-gradient-to-l from-gray-900 to-transparent"></div>
+            </div>
             <p id="title" class="text-xl mb-1">Título de la canción</p>
             <p id="artist" class="text-lg mb-1">Artista</p>
             <p id="album" class="text-lg mb-1">Álbum</p>
@@ -44,7 +49,7 @@
                     <i class="fas fa-random"></i>
                 </button>
             </div>
-            <input type="file" id="input" accept=".mp3, .wav" class="mt-4" multiple>
+            <input type="file" id="input" accept=".mp3, .wav, .flac, .aac, .ogg" class="mt-4" multiple>
         </div>
     </div>
 
