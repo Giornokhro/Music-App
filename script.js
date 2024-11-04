@@ -1,9 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
     const jsmediatags = window.jsmediatags;
+    const colorThief = new ColorThief();
     let files = [];
     let currentIndex = 0;
     let isShuffle = false;
-    const carousel = document.getElementById("carousel");
+    const audio = document.createElement("audio");
+    document.body.appendChild(audio);
 
     function loadTags(file) {
         jsmediatags.read(file, {
@@ -16,7 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     for (let i = 0; i < data.length; i++) {
                         base64String += String.fromCharCode(data[i]);
                     }
-                    document.querySelectorAll(".carousel-item")[1].style.backgroundImage = `url(data:${format};base64,${window.btoa(base64String)})`;
+                    const coverImageUrl = `data:${format};base64,${window.btoa(base64String)}`;
+                    document.querySelectorAll(".carousel-item")[1].style.backgroundImage = `url(${coverImageUrl})`;
+                    applyGradient(coverImageUrl);
                 } else {
                     document.querySelectorAll(".carousel-item")[1].style.backgroundImage = '';
                 }
@@ -32,26 +36,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function applyGradient(imageUrl) {
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = function () {
+            const color = colorThief.getColor(img);
+            const gradient = `linear-gradient(rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.5), rgba(0, 0, 0, 0.8))`;
+            document.querySelector(".sub-container").style.background = gradient;
+        };
+    }
+
     function playSong(index) {
         if (index >= 0 && index < files.length) {
-            const audio = document.querySelector("#audio");
             audio.src = URL.createObjectURL(files[index]);
             audio.load();
             audio.play();
             currentIndex = index;
             loadTags(files[index]);
 
-            // Update carousel
-            const carouselItems = document.querySelectorAll(".carousel-item");
-            carouselItems[0].style.backgroundImage = carouselItems[1].style.backgroundImage;
-            carouselItems[1].style.backgroundImage = carouselItems[2].style.backgroundImage;
-            if (index + 1 < files.length) {
-                loadNextCover(files[index + 1]);
-            } else {
-                carouselItems[2].style.backgroundImage = '';
-            }
+            loadCover(index - 1, 0);
+            loadCover(index, 1);
+            loadCover(index + 1, 2);
 
-            // Update playlist selection
             const playlistItems = document.querySelectorAll("#playlist li");
             playlistItems.forEach((item, i) => {
                 item.classList.toggle("selected", i === index);
@@ -59,51 +65,51 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function loadNextCover(file) {
-        jsmediatags.read(file, {
-            onSuccess: function (tag) {
-                const data = tag.tags.picture?.data;
-                const format = tag.tags.picture?.format;
-                let base64String = "";
+    function loadCover(index, carouselPosition) {
+        if (index >= 0 && index < files.length) {
+            jsmediatags.read(files[index], {
+                onSuccess: function (tag) {
+                    const data = tag.tags.picture?.data;
+                    const format = tag.tags.picture?.format;
+                    let base64String = "";
 
-                if (data) {
-                    for (let i = 0; i < data.length; i++) {
-                        base64String += String.fromCharCode(data[i]);
+                    if (data) {
+                        for (let i = 0; i < data.length; i++) {
+                            base64String += String.fromCharCode(data[i]);
+                        }
+                        const coverImageUrl = `url(data:${format};base64,${window.btoa(base64String)})`;
+                        document.querySelectorAll(".carousel-item")[carouselPosition].style.backgroundImage = coverImageUrl;
+                    } else {
+                        document.querySelectorAll(".carousel-item")[carouselPosition].style.backgroundImage = '';
                     }
-                    document.querySelectorAll(".carousel-item")[2].style.backgroundImage = `url(data:${format};base64,${window.btoa(base64String)})`;
-                } else {
-                    document.querySelectorAll(".carousel-item")[2].style.backgroundImage = '';
+                },
+                onError: function (error) {
+                    console.log(error);
                 }
-            },
-            onError: function (error) {
-                console.log(error);
-            }
-        });
+            });
+        } else {
+            document.querySelectorAll(".carousel-item")[carouselPosition].style.backgroundImage = '';
+        }
     }
 
     document.querySelector("#input").addEventListener("change", (event) => {
         files = Array.from(event.target.files);
-
-        // Populate playlist
         const playlist = document.querySelector("#playlist");
         playlist.innerHTML = '';
         files.forEach((file, index) => {
-            const li = document.createElement("li");
+            const li = document.createElement("button");
             li.textContent = file.name;
+            li.className = "text-white bg-gradient-to-br w-full from-indigo-950 to-blue-700 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2";
             li.addEventListener("click", () => playSong(index));
             playlist.appendChild(li);
         });
 
         if (files.length > 0) {
-            playSong(0); // Play the first song by default
-            if (files.length > 1) {
-                loadNextCover(files[1]);
-            }
+            playSong(0);
         }
     });
 
     document.querySelector("#playPause").addEventListener("click", () => {
-        const audio = document.querySelector("#audio");
         if (audio.paused) {
             audio.play();
             document.querySelector("#playPause").innerHTML = '<i class="fas fa-pause"></i>';
@@ -113,45 +119,59 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    document.querySelector("#stop").addEventListener("click", () => {
-        const audio = document.querySelector("#audio");
-        audio.pause();
-        audio.currentTime = 0;
-        document.querySelector("#playPause").innerHTML = '<i class="fas fa-play"></i>';
-    });
-
-    document.querySelector("#prev").addEventListener("click", () => {
-        if (isShuffle) {
-            playSong(Math.floor(Math.random() * files.length));
-        } else {
-            playSong(currentIndex > 0 ? currentIndex - 1 : files.length - 1);
-        }
-    });
-
     document.querySelector("#next").addEventListener("click", () => {
         if (isShuffle) {
-            playSong(Math.floor(Math.random() * files.length));
+            const randomIndex = Math.floor(Math.random() * files.length);
+            playSong(randomIndex);
         } else {
             playSong(currentIndex < files.length - 1 ? currentIndex + 1 : 0);
         }
     });
 
-    document.querySelector("#shuffle").addEventListener("click", () => {
-        isShuffle = !isShuffle;
-        document.querySelector("#shuffle").classList.toggle("bg-blue-500", isShuffle);
+    document.querySelector("#prev").addEventListener("click", () => {
+        playSong(currentIndex > 0 ? currentIndex - 1 : files.length - 1);
     });
+
+    audio.addEventListener("timeupdate", () => {
+        const progress = document.querySelector("#progress");
+        progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+        document.querySelector("#currentTime").textContent = formatTime(audio.currentTime);
+        document.querySelector("#duration").textContent = formatTime(audio.duration);
+    });
+
+    document.querySelector("#progress").addEventListener("input", (event) => {
+        audio.currentTime = (event.target.value / 100) * audio.duration;
+    });
+
+    document.querySelector("#volume").addEventListener("input", (event) => {
+        audio.volume = event.target.value;
+    });
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    //document.querySelector("#shuffle").addEventListener("click", () => {
+      //  isShuffle = !isShuffle;
+        //document.querySelector("#shuffle").classList.toggle("bg-blue-500", isShuffle);
+    //});
 
     let startX;
     let isDragging = false;
 
-    document.querySelector(".carousel-container").addEventListener("mousedown", (event) => {
+    const carouselContainer = document.querySelector(".carousel-container");
+
+    // Mouse events
+    carouselContainer.addEventListener("mousedown", (event) => {
+        console.log("Mouse down", event.clientX);
         startX = event.clientX;
         isDragging = true;
-        event.preventDefault();
-        document.querySelector(".carousel-container").classList.add("carousel-dragging");
+        event.preventDefault(); // Evitar selección de texto.
     });
 
-    document.querySelector(".carousel-container").addEventListener("mouseup", (event) => {
+    carouselContainer.addEventListener("mouseup", (event) => {
         if (isDragging) {
             const endX = event.clientX;
             if (endX < startX) {
@@ -159,26 +179,22 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (endX > startX) {
                 document.querySelector("#prev").click();
             }
-            document.querySelector(".carousel-container").classList.remove("carousel-dragging");
         }
         isDragging = false;
-        event.preventDefault();
     });
 
-    document.querySelector(".carousel-container").addEventListener("mouseleave", () => {
-        if (isDragging) {
-            document.querySelector(".carousel-container").classList.remove("carousel-dragging");
-        }
+    carouselContainer.addEventListener("mouseleave", () => {
         isDragging = false;
     });
 
     // Touch events for mobile
-    document.querySelector(".carousel-container").addEventListener("touchstart", (event) => {
+    carouselContainer.addEventListener("touchstart", (event) => {
         startX = event.touches[0].clientX;
         isDragging = true;
+        event.preventDefault(); // Prevenir comportamiento por defecto.
     });
 
-    document.querySelector(".carousel-container").addEventListener("touchend", (event) => {
+    carouselContainer.addEventListener("touchend", (event) => {
         if (isDragging) {
             const endX = event.changedTouches[0].clientX;
             if (endX < startX) {

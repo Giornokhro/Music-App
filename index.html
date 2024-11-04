@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reproductor de Música</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body class="bg-gray-900 text-white">
-    <div class="container mx-auto mt-10 p-4 flex flex-col md:flex-row h-screen">
-        <div class="md:w-1/4 bg-gray-800 p-4 rounded-lg mb-4 md:mb-0 overflow-y-auto flex-grow-0" style="max-height: 80vh;">
-            <h2 class="text-xl mb-4">Playlist</h2>
-            <ul id="playlist" class="space-y-2"></ul>
-        </div>
-        <div class="md:w-3/4 md:ml-4 bg-gray-800 p-4 rounded-lg flex flex-col items-center flex-grow">
+    <div class="container mx-auto p-4 flex flex-col md:flex-row h-screen">
+        
+        <div class="sub-container md:w-2/3 bg-gray-800 p-4 rounded-lg flex flex-col items-center flex-grow">
             <div class="carousel-container relative w-full flex justify-center items-center">
                 <div class="gradient-left hidden md:block absolute left-0 top-0 bottom-0 w-1/4 bg-gradient-to-r from-gray-900 to-transparent"></div>
                 <div id="carousel" class="carousel flex transition-transform duration-500 ease-in-out">
@@ -27,35 +23,48 @@
                 </div>
                 <div class="gradient-right hidden md:block absolute right-0 top-0 bottom-0 w-1/4 bg-gradient-to-l from-gray-900 to-transparent"></div>
             </div>
-            <p id="title" class="text-xl mb-1">Título de la canción</p>
+            <p id="title" class="text-xl mt-4 mb-1">Título de la canción</p>
             <p id="artist" class="text-lg mb-1">Artista</p>
             <p id="album" class="text-lg mb-1">Álbum</p>
             <p id="genre" class="text-lg mb-4">Género</p>
-            <audio id="audio" class="w-full mb-4" controls></audio>
-            <div class="flex space-x-4">
-                <button id="prev" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                    <i class="fas fa-backward"></i>
-                </button>
-                <button id="playPause" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                    <i class="fas fa-play"></i>
-                </button>
-                <button id="stop" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                    <i class="fas fa-stop"></i>
-                </button>
-                <button id="next" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                    <i class="fas fa-forward"></i>
-                </button>
-                <button id="shuffle" class="p-2 rounded-full bg-green-500 hover:bg-green-600">
-                    <i class="fas fa-random"></i>
-                </button>
+            <div class="w-full mb-4 bg-gray-800 p-4 rounded-lg flex justify-center">
+                <div class="flex items-center space-x-2 ml-4">
+                    <button id="prev" class="p-2 text-white bg-gradient-to-br w-full from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center">
+                        <i class="fas fa-backward"></i>
+                    </button>
+                    <button id="playPause" class="p-2 text-white bg-gradient-to-br w-full from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="next" class="p-2 text-white bg-gradient-to-br w-full from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2.5 text-center">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                </div>
+                <div class="flex flex-wrap justify-center items-center space-x-2 ml-4">
+                    <label for="volume" class="text-sm">Volumen</label>
+                    <input type="range" id="volume" class="w-20 h-1 accent-violet-700 rounded-lg cursor-pointer" min="0" max="1" step="0.01" value="1">
+                </div>
             </div>
-            <input type="file" id="input" accept=".mp3, .wav, .flac, .aac, .ogg" class="mt-4" multiple>
+            <div class="flex justify-between w-full mb-2">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+            <div class="flex-grow w-full">
+                <input type="range" id="progress" class="flex items-center w-full h-1 accent-violet-700 rounded-lg cursor-pointer" value="0" step="1">
+            </div>
+            <input type="file" id="input" accept=".mp3, .wav, .flac, .aac, .ogg" class="mt-4 block w-full text-sm text-slate-500
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-full file:border-0
+            file:text-sm file:font-semibold
+            file:bg-gradient-to-r file:from-violet-600 file:to-blue-500  file:text-gray-100
+            hover:file:bg-gradient-to-r hover:file:from-violet-700 hover:file:to-blue-600" multiple>
+        </div>
+        <div class="md:w-2/3 bg-gray-800 p-4 rounded-lg flex flex-col items-center overflow-y-auto  scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-300 flex-grow mt-4 sm:mt-4 md:mt-0 lg:mt-0 sm:ml-0 md:ml-4 lg:ml-4">
+            <h2 class="text-xl text-center mb-3 border-b w-full">Playlist</h2>
+            <ul id="playlist" class="space-y-4"></ul>
         </div>
     </div>
-
     <script src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
 </body>
-
 </html>
